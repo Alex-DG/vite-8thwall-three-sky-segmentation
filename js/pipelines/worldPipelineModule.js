@@ -1,42 +1,24 @@
-import textureSrc from '../../assets/textures/space.png'
+import Lights from '../experience/Lights'
+import Sky from '../experience/Sky'
 
 export const initWorldPipelineModule = () => {
   let skyBox
 
-  const initSkyScene = ({ scene, renderer }) => {
+  const init = ({ scene, renderer }) => {
     renderer.outputEncoding = THREE.sRGBEncoding
 
-    // Add soft white light to the scene.
-    scene.add(new THREE.AmbientLight(0x404040, 7))
+    Lights.init({ scene })
+    Sky.init({ scene })
 
-    // Add sky dome.
-    const skyGeo = new THREE.SphereGeometry(1000, 25, 25)
-
-    const textureLoader = new THREE.TextureLoader()
-    const texture = textureLoader.load(textureSrc)
-    texture.encoding = THREE.sRGBEncoding
-    texture.mapping = THREE.EquirectangularReflectionMapping
-    const skyMaterial = new THREE.MeshPhongMaterial({
-      map: texture,
-      toneMapped: true,
-    })
-
-    skyBox = new THREE.Mesh(skyGeo, skyMaterial)
-    skyBox.material.side = THREE.BackSide
-    scene.add(skyBox)
-    skyBox.visible = false
-
-    console.log('✨', 'World ready')
+    console.log('✨', 'Sky ready')
   }
 
   const update = () => {}
 
   const layerFound = ({ detail }) => {
-    console.log('FOUND', { detail })
-
     if (detail?.name === 'sky') {
       XR8.LayersController.recenter()
-      skyBox.visible = true
+      Sky.show()
     }
   }
 
@@ -45,7 +27,9 @@ export const initWorldPipelineModule = () => {
 
     onStart: () => {
       const { layerScenes, camera, renderer } = XR8.Threejs.xrScene()
-      initSkyScene({ scene: layerScenes.sky.scene, camera, renderer })
+      const scene = layerScenes.sky.scene
+
+      init({ scene, camera, renderer })
 
       // Set the initial camera position
       camera.position.set(0, 3, 0)

@@ -1,4 +1,4 @@
-# { AR 8thWall + Sky Segmentation ~ Three.js } with Vite.js ⚡
+# { AR 8thWall + Sky Segmentation ~ Three.js }
 
 ## Description
 
