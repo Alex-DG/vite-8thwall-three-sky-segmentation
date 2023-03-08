@@ -1,19 +1,46 @@
-import Lights from '../experience/Lights'
-import Sky from '../experience/Sky'
+import AirshipModel from '../classes/AirshipModel'
+import Lights from '../classes/Lights'
+import Sky from '../classes/Sky'
 
 export const initWorldPipelineModule = () => {
-  let skyBox
+  const config = ({ layerScenes, renderer, camera, canvas }) => {
+    XR8.Threejs.xrScene().skyScene = layerScenes.sky.scene
 
-  const init = ({ scene, renderer }) => {
     renderer.outputEncoding = THREE.sRGBEncoding
 
-    Lights.init({ scene })
-    Sky.init({ scene })
+    // Set the initial camera position
+    camera.position.set(0, 0, 0)
 
-    console.log('✨', 'Sky ready')
+    // Sync the xr controller's 6DoF position and camera paremeters with our scene.
+    XR8.LayersController.configure({
+      coordinates: {
+        origin: {
+          position: camera.position,
+          rotation: camera.quaternion,
+        },
+      },
+    })
+
+    // Prevent scroll/pinch gestures on canvas
+    canvas.addEventListener('touchmove', (event) => {
+      event.preventDefault()
+    })
+
+    // Prevent double tap zoom
+    document.ondblclick = function (e) {
+      e.preventDefault()
+    }
   }
 
-  const update = () => {}
+  const start = () => {
+    Lights.init()
+    Sky.init()
+    AirshipModel.init()
+
+    console.log('⭐️', 'Sky ready')
+  }
+
+  const render = () => {}
 
   const layerFound = ({ detail }) => {
     if (detail?.name === 'sky') {
@@ -23,41 +50,23 @@ export const initWorldPipelineModule = () => {
   }
 
   return {
-    name: 'init-world',
+    name: 'world',
 
-    onStart: () => {
+    onStart: ({ canvas }) => {
       const { layerScenes, camera, renderer } = XR8.Threejs.xrScene()
-      const scene = layerScenes.sky.scene
 
-      init({ scene, camera, renderer })
+      try {
+        config({ renderer, camera, layerScenes, canvas })
 
-      // Set the initial camera position
-      camera.position.set(0, 3, 0)
-
-      // Sync the xr controller's 6DoF position and camera paremeters with our scene.
-      XR8.LayersController.configure({
-        coordinates: {
-          origin: {
-            position: camera.position,
-            rotation: camera.quaternion,
-          },
-        },
-      })
-
-      // Prevent scroll/pinch gestures on canvas
-      canvas.addEventListener('touchmove', (event) => {
-        event.preventDefault()
-      })
-
-      // Prevent double tap zoom
-      document.ondblclick = function (e) {
-        e.preventDefault()
+        start()
+      } catch (error) {
+        console.log(error)
       }
     },
 
     onAttach: () => {},
 
-    onUpdate: () => update(),
+    onRender: () => render(),
 
     listeners: [{ event: 'layerscontroller.layerfound', process: layerFound }],
   }
