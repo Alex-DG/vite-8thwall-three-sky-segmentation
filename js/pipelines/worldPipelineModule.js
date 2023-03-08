@@ -45,7 +45,9 @@ export const initWorldPipelineModule = () => {
   const layerFound = ({ detail }) => {
     if (detail?.name === 'sky') {
       XR8.LayersController.recenter()
+
       Sky.show()
+      AirshipModel.show()
     }
   }
 
@@ -55,13 +57,9 @@ export const initWorldPipelineModule = () => {
     onStart: ({ canvas }) => {
       const { layerScenes, camera, renderer } = XR8.Threejs.xrScene()
 
-      try {
-        config({ renderer, camera, layerScenes, canvas })
+      config({ renderer, camera, layerScenes, canvas })
 
-        start()
-      } catch (error) {
-        console.log(error)
-      }
+      start()
     },
 
     onAttach: () => {},

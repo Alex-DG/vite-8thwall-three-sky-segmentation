@@ -24,12 +24,11 @@ class _Sky {
       })
 
       const skyBox = new THREE.Mesh(skyGeo, skyMaterial)
+      skyBox.visible = false
       skyBox.material.side = THREE.BackSide
 
       this.skyScene.add(skyBox)
       this.instance = skyBox
-      console.log({ skyBox })
-      this.hide()
     } catch (error) {
       console.error('load-texture', { error })
     }

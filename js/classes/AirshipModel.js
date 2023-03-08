@@ -3,14 +3,22 @@ import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 
 class _AirshipModel {
+  show() {
+    this.instance.visible = true
+  }
+
+  hide() {
+    this.instance.visible = false
+  }
+
   async loadGLB(source = '/models/airship.glb') {
     try {
       const loader = new GLTFLoader()
       const model = await loader.loadAsync(source)
 
       const airshipLoadedModel = model.scene
+      airshipLoadedModel.visible = false
 
-      this.instance = airshipLoadedModel
       this.airshipPositioningPivot.add(airshipLoadedModel)
 
       // Animate the model
@@ -37,6 +45,7 @@ class _AirshipModel {
       this.airshipPositioningPivot.rotation.x =
         verticalDegrees * (Math.PI / 180)
 
+      this.instance = airshipLoadedModel
       this.isReady = true
     } catch (error) {
       console.log('airship-load-error', { error })
